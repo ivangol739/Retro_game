@@ -1,0 +1,50 @@
+{
+  "name": "retro_game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development",
+    "build": "webpack --mode production",
+    "lint": "eslint .",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "preshow:coverage": "npm run coverage",
+    "show:coverage": "live-server coverage/lcov-report",
+    "preshow:dist": "npm run build",
+    "show:dist": "live-server dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivangol739/Retro_game.git"
+  },
+  "author": "ivangol739",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ivangol739/Retro_game/issues"
+  },
+  "homepage": "https://github.com/ivangol739/Retro_game#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.19.6",
+    "@babel/preset-env": "^7.19.4",
+    "babel-jest": "^29.2.2",
+    "babel-loader": "^9.0.1",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.26.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "html-loader": "^4.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "jest": "^29.2.2",
+    "live-server": "^1.1.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "core-js": "^3.26.0"
+  }
+}
