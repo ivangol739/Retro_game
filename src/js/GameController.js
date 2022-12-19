@@ -39,7 +39,6 @@ export default class GameController {
     GameState.from({
       level: GameState.level,
       character: GameState.character,
-      step: GameState.step,
       scores: GameState.scores,
       maxLevel: GameState.maxLevel,
     });
@@ -74,75 +73,7 @@ export default class GameController {
     const itemPlayer = GameState.character.find(player);
     const itemComputer = GameState.character.find(computer);
     if (GameState.step === 'computer') {
-      const listComputer = [];
-      const listPlayer = [];
-      let listAttack = [];
-      GameState.character.forEach((el) => {
-        if (el.character.type === 'vampire' || el.character.type === 'undead' || el.character.type === 'daemon') {
-          listComputer.push(el);
-        }
-      });
-      GameState.character.forEach((el) => {
-        if (el.character.type === 'bowman' || el.character.type === 'magician' || el.character.type === 'swordsman') {
-          listPlayer.push(el);
-        }
-      });
-      if (listComputer.length === 0) {
-        listPlayer.forEach((el) => {
-          GameState.scores += el.character.health;
-        });
-        GamePlay.showMessage(`Количество очков: ${GameState.scores}!`);
-        GameState.step = 'player';
-        this.gamePlay.cellClickListeners = [];
-        this.gamePlay.cellEnterListeners = [];
-        this.gamePlay.cellLeaveListeners = [];
-        this.gamePlay.newGameListeners = [];
-        this.gamePlay.saveGameListeners = [];
-        this.gamePlay.loadGameListeners = [];
-        GameState.level += 1;
-        GameState.maxLevel += 1;
-        if (GameState.level > 4) { GameState.level = 1; }
-        let count;
-        if (GameState.level === 1 || GameState.level === 2) { count = 1; } else { count = 2; }
-        const newCharacter = new Team(count, GameState.maxLevel, [new Bowman(), new Magician(), new Swordsman()]).lvlUp();
-        GameState.character = newCharacter;
-        this.gamePlay.drawUi(`${Object.values(themes)[GameState.level - 1]}`);
-        this.gamePlay.redrawPositions(GameState.character);
-        this.gamePlay.addNewGameListener(this.init.bind(this));
-        return;
-      }
-      const [chCom] = mix(listComputer);
-      listPlayer.forEach((el) => {
-        if (GameController.possible(chCom.character.movesAttack, chCom.position).find((i) => i === el.position)) {
-          listAttack.push(el);
-        }
-      });
-      if (listAttack.length > 0) {
-        [listAttack] = mix(listAttack);
-        const damage = Math.round(Math.max(chCom.character.attack - listAttack.character.defence, chCom.character.attack * 0.1));
-        listAttack.character.health -= damage;
-        this.gamePlay.showDamage(listAttack.position, damage).then(() => {
-          if (listAttack.character.health <= 0) {
-            GameState.character.splice(GameState.character.indexOf(listAttack), 1);
-            if (listPlayer.length === 1) {
-              GamePlay.showMessage(`Вы набрали очков: ${GameState.scores}!. Нажмите начать новую игру.`);
-              this.gamePlay.redrawPositions(GameState.character);
-              return;
-            }
-          }
-          this.gamePlay.redrawPositions(GameState.character);
-        });
-      } else {
-        const m = mix(GameController.possible(chCom.character.Moves, chCom.position));
-        [...listPlayer, ...listComputer].forEach((el) => {
-          if (GameController.possible(chCom.character.Moves, chCom.position).find((i) => i === el.position)) {
-            m.splice(m.indexOf(el.position), 1);
-          }
-        });
-        chCom.position = m[0];
-        this.gamePlay.redrawPositions(GameState.character);
-      }
-      GameState.step = 'player';
+      this.com();
     } else if (itemPlayer) {
       GameState.itemPlayer = itemPlayer;
       GameState.possibleAttack = GameController.possible(itemPlayer.character.movesAttack, index);
@@ -237,4 +168,81 @@ export default class GameController {
     }
     return list;
   }
-}//
+
+  com() {
+    const listComputer = [];
+    const listPlayer = [];
+    let listAttack = [];
+    GameState.character.forEach((el) => {
+      if (el.character.type === 'vampire' || el.character.type === 'undead' || el.character.type === 'daemon') {
+        listComputer.push(el);
+      }
+    });
+    GameState.character.forEach((el) => {
+      if (el.character.type === 'bowman' || el.character.type === 'magician' || el.character.type === 'swordsman') {
+        listPlayer.push(el);
+      }
+    });
+    if (listComputer.length === 0) {
+      listPlayer.forEach((el) => {
+        GameState.scores += el.character.health;
+      });
+      GamePlay.showMessage(`Количество очков: ${GameState.scores}!`);
+      GameState.step = 'player';
+      this.gamePlay.cellClickListeners = [];
+      this.gamePlay.cellEnterListeners = [];
+      this.gamePlay.cellLeaveListeners = [];
+      this.gamePlay.newGameListeners = [];
+      this.gamePlay.saveGameListeners = [];
+      this.gamePlay.loadGameListeners = [];
+      GameState.level += 1;
+      GameState.maxLevel += 1;
+      if (GameState.level > 4) { GameState.level = 1; }
+      let count;
+      if (GameState.level === 1 || GameState.level === 2) { count = 1; } else { count = 2; }
+      const newCharacter = new Team(count, GameState.maxLevel, [new Bowman(), new Magician(), new Swordsman()]).lvlUp();
+      GameState.character = newCharacter;
+      this.gamePlay.drawUi(`${Object.values(themes)[GameState.level - 1]}`);
+      this.gamePlay.redrawPositions(GameState.character);
+      this.gamePlay.addNewGameListener(this.init.bind(this));
+      this.gamePlay.addLoadGameListener(this.onLoad.bind(this));
+      this.gamePlay.addSaveGameListener(this.onSave.bind(this));
+      this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
+      this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
+      this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
+      return;
+    }
+    const [chCom] = mix(listComputer);
+    listPlayer.forEach((el) => {
+      if (GameController.possible(chCom.character.movesAttack, chCom.position).find((i) => i === el.position)) {
+        listAttack.push(el);
+      }
+    });
+    if (listAttack.length > 0) {
+      [listAttack] = mix(listAttack);
+      const damage = Math.round(Math.max(chCom.character.attack - listAttack.character.defence, chCom.character.attack * 0.1));
+      listAttack.character.health -= damage;
+      this.gamePlay.showDamage(listAttack.position, damage).then(() => {
+        if (listAttack.character.health <= 0) {
+          GameState.character.splice(GameState.character.indexOf(listAttack), 1);
+          if (listPlayer.length === 1) {
+            GamePlay.showMessage(`Вы набрали очков: ${GameState.scores}!. Нажмите начать новую игру.`);
+            this.gamePlay.redrawPositions(GameState.character);
+            return;
+          }
+        }
+        this.gamePlay.redrawPositions(GameState.character);
+      });
+    } else {
+      const m = mix(GameController.possible(chCom.character.Moves, chCom.position));
+      [...listPlayer, ...listComputer].forEach((el) => {
+        if (GameController.possible(chCom.character.Moves, chCom.position).find((i) => i === el.position)) {
+          m.splice(m.indexOf(el.position), 1);
+        }
+      });
+      chCom.position = m[0];
+      this.gamePlay.redrawPositions(GameState.character);
+    }
+    GameState.step = 'player';
+  }
+}

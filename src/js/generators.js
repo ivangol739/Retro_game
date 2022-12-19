@@ -11,6 +11,12 @@ export function generateTeam(allowedTypes, maxLevel, characterCount) {
   const listTeam = [];
   for (let i = 0; i < characterCount; i += 1) {
     const character = item.next().value;
+    character.attack = character.__proto__.attack;
+    character.defence = character.__proto__.defence;
+    character.health = character.__proto__.health;
+    character.type = character.__proto__.type;
+    character.movesAttack = character.__proto__.movesAttack;
+    character.Moves = character.__proto__.Moves;
     listTeam[i] = character;
   }
   return listTeam;
